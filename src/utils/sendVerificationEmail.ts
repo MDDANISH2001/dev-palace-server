@@ -6,6 +6,8 @@ interface UserData {
   email: string;
   name: string;
   userType: "client" | "developer";
+  duration?: string;
+  isVerified: boolean;
 }
 
 /**
@@ -14,11 +16,15 @@ interface UserData {
  */
 export async function sendVerificationEmail(userData: UserData): Promise<void> {
   // Generate verification token that expires in 24 hours
-  const verificationToken = JwtUtil.generateVerificationToken({
-    id: userData.id,
-    email: userData.email,
-    userType: userData.userType,
-  });
+  const verificationToken = JwtUtil.generateVerificationToken(
+    {
+      id: userData.id,
+      email: userData.email,
+      userType: userData.userType,
+      isVerified: userData.isVerified,
+    },
+    userData?.duration || "24h"
+  );
 
   // Send verification email
   await EmailUtil.sendVerificationEmail(

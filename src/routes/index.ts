@@ -2,7 +2,7 @@ import { Router } from "express";
 import authRoutes from "./authRoutes";
 import clientRoutes from "./clients/client.routes";
 // import developerRoutes from "./developers/developer.routes";
-import sharedRoutes from "./shared/get.routes";
+import sharedRoutes from "./shared/shared.routes";
 
 const router = Router();
 

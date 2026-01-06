@@ -6,12 +6,14 @@ interface TokenPayload {
   id: string;
   email: string;
   userType: "client" | "developer";
+  isVerified?: boolean;
 }
 
 interface VerificationTokenPayload {
   id: string;
   email: string;
   userType: "client" | "developer";
+  isVerified: boolean;
 }
 
 export class JwtUtil {
@@ -74,10 +76,17 @@ export class JwtUtil {
   /**
    * Generate email verification token (expires in 24 hours)
    */
-  static generateVerificationToken(payload: VerificationTokenPayload): string {
-    return jwt.sign(payload, config.jwt.secret as jwt.Secret, {
-      expiresIn: "24h",
-    });
+  static generateVerificationToken(
+    payload: VerificationTokenPayload,
+    duration?: string
+  ): string {
+    return jwt.sign(
+      payload,
+      config.jwt.secret as string,
+      {
+        expiresIn: duration || "24h",
+      } as jwt.SignOptions
+    );
   }
 
   /**

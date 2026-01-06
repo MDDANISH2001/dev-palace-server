@@ -13,7 +13,6 @@ import {
 export const postProject = async (req: Request, res: Response) => {
   try {
     const clientId = req.user?.id;
-    console.log("clientId :", clientId);
 
     if (!clientId) {
       return res

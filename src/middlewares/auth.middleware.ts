@@ -29,14 +29,10 @@ export const authenticate = async (
   try {
     // Extract token from cookie or Authorization header
     let token: string | undefined;
-    console.log("token :", token);
 
     // Check cookie first
-    console.log("req.cookies :", req.cookies);
-    console.log("req.cookies.token :", req.cookies.token);
     if (req.cookies && req.cookies.token) {
       token = req.cookies.token;
-      console.log("token :", token);
     }
 
     // Check Authorization header as fallback

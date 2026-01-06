@@ -9,6 +9,7 @@ import { asyncHandler } from "../middlewares/errorHandler";
 import { generateRootKey, generateUserKeys } from "../utils/generateKeys";
 import encryptMessage from "../utils/encryptMessage";
 import { sendVerificationEmail } from "../utils/sendVerificationEmail";
+import { is } from "zod/locales";
 
 export const userAuth = {
   /**
@@ -73,6 +74,7 @@ export const userAuth = {
         id: client._id.toString(),
         email: client.email,
         userType: "client",
+        isVerified: client.isVerified,
       });
 
       // Set token as HTTP-only cookie
@@ -84,6 +86,7 @@ export const userAuth = {
         email: client.email,
         name: client.name,
         userType: "client",
+        isVerified: client.isVerified,
       }).catch((error) => {
         console.error("Failed to send verification email:", error);
         // Don't fail registration if email fails
@@ -137,6 +140,7 @@ export const userAuth = {
         id: client._id.toString(),
         email: client.email,
         userType: "client",
+        isVerified: client.isVerified,
       });
 
       // Set token as HTTP-only cookie
@@ -149,6 +153,7 @@ export const userAuth = {
           name: client.name,
           email: client.email,
           userType: "client",
+          isVerified: client.isVerified,
         },
       });
     }
@@ -216,6 +221,7 @@ export const userAuth = {
         id: developer._id.toString(),
         email: developer.email,
         userType: "developer",
+        isVerified: developer.isVerified,
       });
 
       // Set token as HTTP-only cookie
@@ -227,6 +233,8 @@ export const userAuth = {
         email: developer.email,
         name: developer.name,
         userType: "developer",
+        duration: "15m",
+        isVerified: developer.isVerified,
       }).catch((error) => {
         console.error("Failed to send verification email:", error);
         // Don't fail registration if email fails
@@ -291,6 +299,7 @@ export const userAuth = {
         name: developer.name,
         email: developer.email,
         userType: "developer",
+        isVerified: developer.isVerified,
       },
     });
   }),
@@ -326,16 +335,19 @@ export const userAuth = {
           return;
         }
 
-        // Send success response with user data
-        ApiResponse.success(res, "Authenticated", {
+        const apiResponse = {
           isAuthenticated: true,
           user: {
             id: user._id,
             name: user.name,
             email: user.email,
             userType: decoded.userType,
+            isVerified: decoded.isVerified,
           },
-        });
+        };
+
+        // Send success response with user data
+        ApiResponse.success(res, "Authenticated", apiResponse);
       } catch (error) {
         // Token verification failed
         ApiResponse.unauthorized(res, "Invalid or expired token");
@@ -362,90 +374,91 @@ export const userAuth = {
    * Verify Email
    * Verifies user's email using the token from query parameters
    */
-  verifyEmail: asyncHandler(
-    async (req: Request, res: Response): Promise<void> => {
-      // Get token from query parameters
-      const { token } = req.query;
+  // verifyEmail: asyncHandler(
+  //   async (req: Request, res: Response): Promise<void> => {
+  //     // Get token from query parameters
+  //     const { token } = req.query;
 
-      if (!token || typeof token !== "string") {
-        ApiResponse.validationError(res, "Verification token is required");
-        return;
-      }
+  //     if (!token || typeof token !== "string") {
+  //       ApiResponse.validationError(res, "Verification token is required");
+  //       return;
+  //     }
 
-      try {
-        // Verify and decode the token
-        const decoded = JwtUtil.verifyVerificationToken(token);
+  //     try {
+  //       // Verify and decode the token
+  //       const decoded = JwtUtil.verifyVerificationToken(token);
 
-        // Find user based on userType and update isVerified
-        let user;
-        if (decoded.userType === "client") {
-          user = await Client.findById(decoded.id);
-          if (!user) {
-            ApiResponse.notFound(res, "Client not found");
-            return;
-          }
+  //       // Find user based on userType and update isVerified
+  //       let user;
+  //       if (decoded.userType === "client") {
+  //         user = await Client.findById(decoded.id);
+  //         if (!user) {
+  //           ApiResponse.notFound(res, "Client not found");
+  //           return;
+  //         }
+          
 
-          // Check if already verified
-          if (user.isVerified) {
-            ApiResponse.success(res, "Email already verified", {
-              user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                userType: "client",
-                isVerified: true,
-              },
-            });
-            return;
-          }
+  //         // Check if already verified
+  //         if (user.isVerified) {
+  //           ApiResponse.success(res, "Email already verified", {
+  //             user: {
+  //               id: user._id,
+  //               name: user.name,
+  //               email: user.email,
+  //               userType: "client",
+  //               isVerified: true,
+  //             },
+  //           });
+  //           return;
+  //         }
 
-          // Update isVerified to true
-          user.isVerified = true;
-          await user.save();
-        } else if (decoded.userType === "developer") {
-          user = await Developer.findById(decoded.id);
-          if (!user) {
-            ApiResponse.notFound(res, "Developer not found");
-            return;
-          }
+  //         // Update isVerified to true
+  //         user.isVerified = true;
+  //         await user.save();
+  //       } else if (decoded.userType === "developer") {
+  //         user = await Developer.findById(decoded.id);
+  //         if (!user) {
+  //           ApiResponse.notFound(res, "Developer not found");
+  //           return;
+  //         }
 
-          // Check if already verified
-          if (user.isVerified) {
-            ApiResponse.success(res, "Email already verified", {
-              user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                userType: "developer",
-                isVerified: true,
-              },
-            });
-            return;
-          }
+  //         // Check if already verified
+  //         if (user.isVerified) {
+  //           ApiResponse.success(res, "Email already verified", {
+  //             user: {
+  //               id: user._id,
+  //               name: user.name,
+  //               email: user.email,
+  //               userType: "developer",
+  //               isVerified: true,
+  //             },
+  //           });
+  //           return;
+  //         }
 
-          // Update isVerified to true
-          user.isVerified = true;
-          await user.save();
-        } else {
-          ApiResponse.unauthorized(res, "Invalid user type");
-          return;
-        }
+  //         // Update isVerified to true
+  //         user.isVerified = true;
+  //         await user.save();
+  //       } else {
+  //         ApiResponse.unauthorized(res, "Invalid user type");
+  //         return;
+  //       }
 
-        // Send success response
-        ApiResponse.success(res, "Email verified successfully", {
-          user: {
-            id: user._id,
-            name: user.name,
-            email: user.email,
-            userType: decoded.userType,
-            isVerified: true,
-          },
-        });
-      } catch (error) {
-        // Token verification failed or expired
-        ApiResponse.unauthorized(res, "Invalid or expired verification token");
-        return;
-      }
-    }
-  ),
+  //       // Send success response
+  //       ApiResponse.success(res, "Email verified successfully", {
+  //         user: {
+  //           id: user._id,
+  //           name: user.name,
+  //           email: user.email,
+  //           userType: decoded.userType,
+  //           isVerified: true,
+  //         },
+  //       });
+  //     } catch (error) {
+  //       // Token verification failed or expired
+  //       ApiResponse.unauthorized(res, "Invalid or expired verification token");
+  //       return;
+  //     }
+  //   }
+  // ),
 };

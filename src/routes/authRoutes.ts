@@ -9,7 +9,7 @@ apiRoutes.post("/client-register", userAuth.clientRegister);
 apiRoutes.post("/client-login", userAuth.clientLogin);
 apiRoutes.post("/dev-register", userAuth.devRegister);
 apiRoutes.post("/dev-login", userAuth.devLogin);
-apiRoutes.get("/verify-email", userAuth.verifyEmail);
+// apiRoutes.get("/verify-email", userAuth.verifyEmail);
 
 // Protected routes (authentication required)
 apiRoutes.get("/verify", authenticate, userAuth.verifyAuth);

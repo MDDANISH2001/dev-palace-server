@@ -45,7 +45,9 @@ export class EmailUtil {
     verificationToken: string
   ): Promise<void> {
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
-    const verificationLink = `${frontendUrl}/verify-email?token=${verificationToken}`;
+    console.log('frontendUrl :', frontendUrl);
+    const verificationLink = `${frontendUrl}/verify-email/${verificationToken}`;
+    console.log('verificationLink :', verificationLink);
 
     const html = `
       <!DOCTYPE html>

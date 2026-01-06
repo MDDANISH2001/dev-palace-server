@@ -5,9 +5,6 @@ import { ApiResponse } from "../../../utils/apiResponse";
 export const getProjects = async (req: Request, res: Response) => {
   try {
     // Extract query parameters
-    console.log(" request query:", req.query);
-    console.log(" request params:", req.params);
-    console.log(" request body:", req.body);
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
     const myProjects = req.query.myProjects === "true";
